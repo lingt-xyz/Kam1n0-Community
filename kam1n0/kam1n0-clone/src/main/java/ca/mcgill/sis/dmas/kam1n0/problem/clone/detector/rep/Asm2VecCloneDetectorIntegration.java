@@ -183,8 +183,12 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 		asm2vec = new LearnerAsm2VecNew(param);
 		asm2vec.debug = false;
 		asm2vec.stage = stage;
-
+		/**
+		 * Inline or not inline
+		 */
 		Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, -1);
+		//Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, 0.6);
+
 		asm2vec.train(funcList);
 
 		stage.complete();

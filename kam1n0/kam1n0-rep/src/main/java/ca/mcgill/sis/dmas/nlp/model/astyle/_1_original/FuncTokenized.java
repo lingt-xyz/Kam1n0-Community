@@ -42,14 +42,14 @@ public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 	 * @param inline_threshold
 	 * @return
 	 */
-	public static Iterable<FuncTokenized> convert(Iterable<? extends BinaryMultiParts> binaries, int inline_threshold) {
+	public static Iterable<FuncTokenized> convert(Iterable<? extends BinaryMultiParts> binaries, double inline_threshold) {
 		Iterable<List<FuncTokenized>> itb = Iterables.transform(Iterables.concat(binaries),
 				bin -> convert(Arrays.asList(bin), inline_threshold));
 		Iterable<FuncTokenized> funcs = Iterables.concat(itb);
 		return funcs;
 	}
 
-	public static List<FuncTokenized> convert(List<Binary> bins, int inline_threshold) {
+	public static List<FuncTokenized> convert(List<Binary> bins, double inline_threshold) {
 		/**
 		 * Output log
 		 * This function is invoked when the binaries is disassembled by IDA python script.
