@@ -178,7 +178,7 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 		stage_root.progress = 0.4;
 
 		stage = progress.nextStage(Asm2VecCloneDetectorIntegration.class, "Start training data with lazy convert...");
-		param.optm_parallelism = 10;
+		param.optm_parallelism = 1;
 		// param.optm_iteration = 20;
 		asm2vec = new LearnerAsm2VecNew(param);
 		asm2vec.debug = false;
