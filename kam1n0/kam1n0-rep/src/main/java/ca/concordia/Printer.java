@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Printer {
-    private final static String Root = "D:/log/";
+    private final static String Root = "D:/asm2vec/log/";
 
     private final static List<String> functionNames = Arrays.asList(
             "BN_options",
