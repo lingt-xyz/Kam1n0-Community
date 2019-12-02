@@ -202,6 +202,7 @@ public class SparkInstance {
 	}
 
 	public void init() {
+		System.setProperty("hadoop.home.dir", "D:\\asm2vec\\Kam1n0-Community\\kam1n0\\Hadoop");
 		context = new JavaSparkContext(getConf());
 		tracker = new SparkStatusTracker(context.sc());
 
