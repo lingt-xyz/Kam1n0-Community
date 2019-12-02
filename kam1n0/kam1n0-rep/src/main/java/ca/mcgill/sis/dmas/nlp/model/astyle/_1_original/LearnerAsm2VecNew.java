@@ -180,7 +180,7 @@ public class LearnerAsm2VecNew implements Serializable {
 					return;
 				}
 
-				iterate(func.rep(this.param.num_rand_wlk), funcMap.get(func.id), rl, bfIn, bfNeul1e, updateWordVec);
+				iterate(func.rep(this.param.num_rand_wlk), funcMap.get(func.id), rl, bfIn, bfNeul1e, updateWordVec, func.name);
 			});
 		}).waiteForCompletion();
 		if (debug)
@@ -188,7 +188,13 @@ public class LearnerAsm2VecNew implements Serializable {
 	}
 
 	private void iterate(List<List<String>> in_strs, NodeWord docNode, RandL rl, double[] bfIn, double[] bfNeul1e,
-			boolean updateWordVec) {
+			boolean updateWordVec, String functionName) {
+		/**
+		 * Output log
+		 * random walk
+		 */
+		List<String> lines = in_strs.stream().map(in -> String.join(" ", in)).collect(Collectors.toList());
+		ca.concordia.Printer.PrintRandomWalk(functionName, lines);
 
 		List<List<NodeWord>> ins = in_strs.stream()
 				.map(in -> in.stream().map(tkn -> vocab.get(tkn.trim().toLowerCase()))//
@@ -198,6 +204,13 @@ public class LearnerAsm2VecNew implements Serializable {
 						.collect(toList()))
 				.filter(in -> in.size() > 0)//
 				.collect(Collectors.toList());
+		/**
+		 * Output log
+		 * filtering
+		 */
+		List<String> lines2 = ins.stream().map(in -> String.join(" ", in.stream().map(token -> token.token).collect(Collectors.toList())
+		)).collect(Collectors.toList());
+		ca.concordia.Printer.PrintAfterFiltration(functionName, lines2);
 
 		for (int i = 0; i < ins.size(); ++i) {
 			List<NodeWord> context = new ArrayList<>();

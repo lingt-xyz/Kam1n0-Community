@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -113,8 +114,56 @@ public class FunctionCloneDetectorForWeb {
 		// progress.currentProgress = count * 1.0 / total;
 		// count++;
 		// }
+		this.printResult(fullResults);
 
 		return fullResults;
+	}
+
+	private void printResult(ArrayList<FunctionCloneDetectionResultForWeb> fullResults){
+		List<String> results = new ArrayList<>();
+
+		AtomicInteger noneMatch = new AtomicInteger();
+		List<String> noneMatch_results = new ArrayList<>();
+		noneMatch_results.add("----------------------------------------------------------------none match------------------------------------------------------------------");
+		AtomicInteger matched = new AtomicInteger();
+		List<String> matched_results = new ArrayList<>();
+		matched_results.add("----------------------------------------------------------------matched------------------------------------------------------------------");
+		AtomicInteger matched_more_than_05 = new AtomicInteger();
+		List<String> matched_more_than_05__results = new ArrayList<>();
+		matched_more_than_05__results.add("----------------------------------------------------------------number of blocks >= 1.5------------------------------------------------------------------");
+		AtomicInteger notMatched = new AtomicInteger();
+		List<String> not_matched_results = new ArrayList<>();
+		not_matched_results.add("----------------------------------------------------------------not matched------------------------------------------------------------------");
+		fullResults.stream().forEach(r -> {
+			String functionName = r.function.functionName;
+			if(r.clones.isEmpty()){
+				noneMatch.getAndIncrement();
+				noneMatch_results.add(functionName);
+			}else{
+				FunctionCloneEntryForWeb f = r.clones.get(0);
+				if(f.functionName.equalsIgnoreCase(functionName)){
+					matched.getAndIncrement();
+					matched_results.add(f.functionName + " " + f.similarity);
+					if(r.function.blockSize >= f.numBbs * 1.5){
+						matched_more_than_05.getAndIncrement();
+						matched_more_than_05__results.add(f.functionName + " " + f.similarity);
+					}
+				}else{
+					notMatched.getAndIncrement();
+					not_matched_results.add("expected " + functionName + ", matched " + f.functionName);
+				}
+			}
+
+		});
+		results.add("noneMatch: " + noneMatch);
+		results.add("matched: " + matched);
+		results.add("matched_more_than_05: " + matched_more_than_05);
+		results.add("notMatched: " + notMatched);
+		results.addAll(noneMatch_results);
+		results.addAll(matched_results);
+		results.addAll(matched_more_than_05__results);
+		results.addAll(not_matched_results);
+		ca.concordia.Printer.PrintStatisticsResults("_statistical", results);
 	}
 
 	public FunctionCloneDetectionResultForWeb detectClones(long rid, Function function, double threadshold, int topK,

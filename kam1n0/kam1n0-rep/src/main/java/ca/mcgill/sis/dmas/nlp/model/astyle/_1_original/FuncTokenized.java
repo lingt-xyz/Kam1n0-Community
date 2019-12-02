@@ -50,11 +50,36 @@ public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 	}
 
 	public static List<FuncTokenized> convert(List<Binary> bins, int inline_threshold) {
-		if (inline_threshold < 0)
-			return bins.stream().flatMap(bin -> bin.functions.stream()).map(func -> new FuncTokenized(func))
+		/**
+		 * Output log
+		 * This function is invoked when the binaries is disassembled by IDA python script.
+		 * So before this step the input `bins` should be the original output of the IDA python script.
+		 */
+		bins.stream().peek(bin -> bin.functions.stream().forEach(ca.concordia.Printer::PrintOriginal)).collect(Collectors.toList());
+
+
+		if (inline_threshold < 0) {
+			List<FuncTokenized> fs = null;
+			fs = bins.stream().flatMap(bin -> bin.functions.stream()).map(func -> new FuncTokenized(func))
 					.collect(Collectors.toList());
+			/**
+			 * Output log
+			 * Tokenize without inlining
+			 */
+			fs.forEach(ca.concordia.Printer::PrintTokenize);
+
+			return fs;
+		}
+
+
 		Map<String, FuncTokenized> func_map = bins.stream().flatMap(bin -> bin.functions.stream())
 				.map(func -> new FuncTokenized(func)).collect(Collectors.toMap(func -> func.id, func -> func));
+
+		/**
+		 * Output log
+		 * Tokenize with inline
+		 */
+		func_map.values().forEach(ca.concordia.Printer::PrintTokenize);
 
 		Map<String, Integer> indegrees = new HashMap<>();
 
@@ -75,6 +100,15 @@ public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 						double alpha = ou * 1.0 / (in + ou);
 						return alpha <= inline_threshold;
 					}).forEach(call -> nfunc.blks.addAll(call.blks));
+			/**
+			 * Output log
+			 *
+			 * This is the only place where inline is applied.
+			 */
+			List<List<String>> asmLines = nfunc.blks.stream().map(block -> block.ins).flatMap(List::stream).collect(Collectors.toList());
+			List<String> input = asmLines.stream().map(in -> String.join(" ", in)).collect(Collectors.toList());
+			ca.concordia.Printer.PrintInline(func.name, input);
+
 			return nfunc;
 		}).collect(Collectors.toList());
 	}

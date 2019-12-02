@@ -96,8 +96,21 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 	@Override
 	protected List<FunctionCloneEntry> detectClonesForFuncToBeImpleByChildren(long appId, Function function,
 			double threadshold, int topK, boolean avoidSameBinary) throws Exception {
+		/**
+		 * Output log
+		 */
+		List<List<String>> asmLines = function.blocks.stream().map(block -> block.getAsmLines()).flatMap(List::stream).collect(Collectors.toList());
+		List<String> lines = asmLines.stream().map(in -> String.join(" ", in)).collect(Collectors.toList());
+		ca.concordia.Printer.PrintOriginal(function.functionName, lines);
 
 		FuncTokenized func_t = new FuncTokenized(function);
+
+		/**
+		 * Output log
+		 */
+		List<List<String>> asmLines2 = func_t.blks.stream().map(block -> block.ins).flatMap(List::stream).collect(Collectors.toList());
+		List<String> lines2 = asmLines2.stream().map(in -> String.join(" ", in)).collect(Collectors.toList());
+		ca.concordia.Printer.PrintTokenize(function.functionName, lines2);
 
 		double[] pvec = asm2vec.infer(Arrays.asList(func_t)).values().iterator().next();
 
