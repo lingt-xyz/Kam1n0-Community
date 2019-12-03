@@ -19,6 +19,7 @@ import ca.mcgill.sis.dmas.kam1n0.framework.storage.Block;
 import ca.mcgill.sis.dmas.kam1n0.framework.storage.Function;
 import ca.mcgill.sis.dmas.nlp.model.astyle.Document;
 import ca.mcgill.sis.dmas.nlp.model.astyle.Sentence;
+import org.apache.spark.sql.catalyst.expressions.Rand;
 
 public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 
@@ -139,16 +140,28 @@ public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 	public List<List<String>> randomWalk(Random rand) {
 		if (this.blks.size() < 1)
 			return new ArrayList<>();
+		/**
+		 * A map:
+		 * 	key: block id
+		 * 	value: block
+		 */
 		Map<String, FuncTokenized.BlockTokenized> blks = this.blks.stream()
 				.collect(Collectors.toMap(blk -> blk.id, blk -> blk));
 		HashSet<String> blk_ids = new HashSet<>();
 		List<FuncTokenized.BlockTokenized> walk = new ArrayList<>();
 		FuncTokenized.BlockTokenized current = this.blks.get(0);
+		/**
+		 * If there are outgoing callings, and if this block has not been added to random walk.
+		 */
 		while (current.callingBlocks.size() > 0 && !blk_ids.contains(current.id)) {
+			// add this block
 			walk.add(current);
+			// add its id so we can check whether we have added it later (in the while condition)
 			blk_ids.add(current.id);
+			// Tokenize the calling blocks
 			List<FuncTokenized.BlockTokenized> cblks = current.callingBlocks.stream().map(cid -> blks.get(cid))
 					.collect(Collectors.toList());
+			// Randomly get next calling block
 			current = cblks.get(rand.nextInt(cblks.size()));
 		}
 		return walk.stream().flatMap(blk -> blk.ins.stream()).collect(Collectors.toList());
@@ -167,6 +180,8 @@ public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 			this.id = Long.toString(blk.blockId);
 			this.ins = blk.getAsmLines().stream().filter(in -> in.size() > 0)
 					.map(in -> insToToken(in, blk.dat.get(Long.parseLong(in.get(0).replace("0x", ""), 16))))
+					// blk.dat is something related to what reference this function is referring from
+					// see DataRefsFrom
 					.collect(Collectors.toList());
 			this.callingBlocks = blk.callingBlocks.stream().map(val -> Long.toString(val)).collect(Collectors.toList());
 		}
@@ -177,10 +192,12 @@ public class FuncTokenized implements Iterable<FuncTokenized.BlockTokenized> {
 
 		private static List<String> insToToken(List<String> ins, String dat) {
 			ArrayList<String> n_tokens = ins.subList(1, ins.size()).stream()
+					// remove instruction address
 					.flatMap(in -> Arrays.stream(in.split("[\\+\\-\\*\\\\\\[\\]:\\(\\)\\s]"))
 							.peek(ele -> ele.toLowerCase().trim())
 							.filter(ele -> ele.trim().length() > 0 && !ele.startsWith("loc_") && !ele.startsWith("sub_")
 									&& !ele.startsWith("var_") && !ele.contains("word_")))
+					//remove tokens starting with `sub_`, `var_`, `word_`
 					.collect(Collectors.toCollection(ArrayList::new));
 			if (dat != null && dat.length() > 0)
 				n_tokens.add(dat);

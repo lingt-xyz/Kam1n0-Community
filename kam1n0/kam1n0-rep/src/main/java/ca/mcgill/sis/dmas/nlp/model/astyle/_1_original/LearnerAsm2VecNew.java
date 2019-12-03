@@ -88,6 +88,9 @@ public class LearnerAsm2VecNew implements Serializable {
 		vocab = null;
 
 		// frequency map:
+		/**
+		 * This is for all functions
+		 */
 		final HashMap<String, Long> counter = new HashMap<>();
 		funcs.forEach(func -> func.forEach(blk -> blk
 				.forEach(token -> counter.compute(token.trim().toLowerCase(), (w, c) -> c == null ? 1 : c + 1))));
@@ -115,8 +118,17 @@ public class LearnerAsm2VecNew implements Serializable {
 
 		// sub-sampling probability
 		if (param.optm_subsampling > 0) {
+			/**
+			 * How many words to sample
+			 */
 			double fcount = param.optm_subsampling * tknTotal;
 			vocabL.stream().parallel().forEach(w -> w.samProb = (sqrt(w.freq / fcount) + 1) * fcount / w.freq);
+			/**
+			 * w.samProb = (sqrt(w.freq / fcount) + 1) * fcount / w.freq
+			 * w.samProb = sqrt(w.freq / fcount) * fcount / w.freq + 1 * fcount / w.freq
+			 * w.samProb = sqrt(fcount / w.freq) + fcount / w.freq
+			 * so if freq is high, then the probability is low
+			 */
 		}
 
 		pTable = createPTbl(vocabL, (int) 1e8, 0.75);
@@ -165,7 +177,13 @@ public class LearnerAsm2VecNew implements Serializable {
 			gen.subIterable().forEach(func -> {
 				// update alpha:
 				if (tknCurrent - tknLastUpdate > alphaUpdateInterval) {
+					/**
+					 * alpha is linear to the size of untrained tokens
+					 */
 					alpha = param.optm_initAlpha * (1.0 - 1.0 * tknCurrent / (numTkns * iterations + 1));
+					/**
+					 * the minimal alpha is optm_initAlpha * 0.00001
+					 */
 					alpha = alpha < param.optm_initAlpha * 0.00001 ? param.optm_initAlpha * 0.00001 : alpha;
 					if (debug)
 						p.report(logger, tknCurrent, alpha);
@@ -187,6 +205,17 @@ public class LearnerAsm2VecNew implements Serializable {
 			p.complete(logger);
 	}
 
+	/**
+	 * Sub sampling the tokens and construct ground truth
+	 *
+	 * @param in_strs instructions of a function
+	 * @param docNode function node: contains function id and its frequency of 1
+	 * @param rl user-defined Random function
+	 * @param bfIn array of zeros
+	 * @param bfNeul1e array of zeros
+	 * @param updateWordVec
+	 * @param functionName
+	 */
 	private void iterate(List<List<String>> in_strs, NodeWord docNode, RandL rl, double[] bfIn, double[] bfNeul1e,
 			boolean updateWordVec, String functionName) {
 		/**
@@ -204,6 +233,7 @@ public class LearnerAsm2VecNew implements Serializable {
 						.collect(toList()))
 				.filter(in -> in.size() > 0)//
 				.collect(Collectors.toList());
+
 		/**
 		 * Output log
 		 * filtering
@@ -211,6 +241,24 @@ public class LearnerAsm2VecNew implements Serializable {
 		List<String> lines2 = ins.stream().map(in -> String.join(" ", in.stream().map(token -> token.token).collect(Collectors.toList())
 		)).collect(Collectors.toList());
 		ca.concordia.Printer.PrintAfterFiltration(functionName, lines2);
+
+
+		/**
+		 * Output log
+		 * filtering without sample probability
+		 */
+		List<List<NodeWord>> ins_filtering = in_strs.stream()
+				.map(in -> in.stream().map(tkn -> vocab.get(tkn.trim().toLowerCase()))//
+						.filter(notNull)//
+						.peek(node -> tknCurrent++)//
+						.filter(n -> in_strs.size() < 2) //
+						.collect(toList()))
+				.filter(in -> in.size() > 0)//
+				.collect(Collectors.toList());
+		List<String> lines_filtering = ins_filtering.stream().map(in -> String.join(" ", in.stream().map(token -> token.token).collect(Collectors.toList())
+		)).collect(Collectors.toList());
+		ca.concordia.Printer.PrintAfterFiltration(functionName, "onlyCompareSize", lines_filtering);
+
 
 		for (int i = 0; i < ins.size(); ++i) {
 			List<NodeWord> context = new ArrayList<>();
@@ -220,12 +268,24 @@ public class LearnerAsm2VecNew implements Serializable {
 				context.addAll(ins.get(i + 1));
 			for (int j = 0; j < ins.get(i).size(); ++j) {
 				NodeWord target = ins.get(i).get(j);
+				/**
+				 * ground truth
+				 */
 				EntryPair<NodeWord, List<NodeWord>> cont = new EntryPair<>(target, context);
 				pred(cont, rl, docNode, bfIn, bfNeul1e, updateWordVec);
 			}
 		}
 	}
 
+	/**
+	 *
+	 * @param cont ground truth
+	 * @param rl user-defined Random
+	 * @param docNode function node: contains function id and its frequency of 1
+	 * @param bfIn array of zeros
+	 * @param neul1e array of zeros
+	 * @param updateWordVec
+	 */
 	private void pred(EntryPair<NodeWord, List<NodeWord>> cont, RandL rl, NodeWord docNode, double[] bfIn,
 			double[] neul1e, boolean updateWordVec) {
 		double[] errors;
@@ -235,19 +295,39 @@ public class LearnerAsm2VecNew implements Serializable {
 		// skip below since we are not using word embedding.
 		// it will be faster.
 		// cont.value.stream().forEach(src -> add(bfIn, src.neuIn));
-
+		/**
+		 * bfIn is all zeros
+		 * docNode.neuIn is randomized, nearly zero
+		 * Add docNode.neuIn to bfIn
+		 */
 		add(bfIn, docNode.neuIn);
 		// div(bfIn, cont.value.size() + 1);
 		ngSamp(cont.key, bfIn, errors, rl, updateWordVec, null);
 
 		// if (updateWordVec)
 		// cont.value.stream().forEach(src -> add(src.neuIn, errors));
+		/**
+		 * Add errors to docNode.neuIn
+		 */
 		add(docNode.neuIn, errors);
 	}
 
+	/**
+	 * Negative sampling
+	 *
+	 * @param tar target word
+	 * @param in
+	 * @param neul1e
+	 * @param rl
+	 * @param updateWordVec
+	 * @param exceptions
+	 */
 	private void ngSamp(NodeWord tar, double[] in, double[] neul1e, RandL rl, boolean updateWordVec,
 			List<NodeWord> exceptions) {
 		for (int i = 0; i < param.optm_negSample + 1; ++i) {
+			/**
+			 * label is for ground true
+			 */
 			double label;
 			double[] out;
 			// NodeWord target;

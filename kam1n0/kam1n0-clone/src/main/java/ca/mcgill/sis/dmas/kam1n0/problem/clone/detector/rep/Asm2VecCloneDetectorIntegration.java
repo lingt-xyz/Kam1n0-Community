@@ -95,7 +95,7 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 
 	@Override
 	protected List<FunctionCloneEntry> detectClonesForFuncToBeImpleByChildren(long appId, Function function,
-			double threadshold, int topK, boolean avoidSameBinary) throws Exception {
+			double threshold, int topK, boolean avoidSameBinary) throws Exception {
 		/**
 		 * Output log
 		 */
@@ -140,7 +140,7 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 
 		}
 
-		return results.stream().parallel().filter(ent -> ent.getKey() > threadshold).map(
+		return results.stream().parallel().filter(ent -> ent.getKey() > threshold).map(
 				ent -> new FunctionCloneEntry(factory.obj_functions.querySingle(appId, ent.getValue()), ent.getKey()))
 				.filter(ent -> !avoidSameBinary || ent.binaryId != function.binaryId).collect(Collectors.toList());
 	}
@@ -186,8 +186,8 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 		/**
 		 * Inline or not inline
 		 */
-		Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, -1);
-		//Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, 0.6);
+		//Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, -1);
+		Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, 0.6);
 
 		asm2vec.train(funcList);
 

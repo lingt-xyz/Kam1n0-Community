@@ -69,6 +69,10 @@ public class Printer {
         Print(functionName, input, "filtration");
     }
 
+    public static void PrintAfterFiltration(String functionName, String appendName, List<String> input) {
+        Print(functionName, input, "filtration" + "_" + appendName);
+    }
+
     public static void PrintResults(String functionName, List<String> input) {
         Print(functionName, input, "result");
     }

@@ -49,7 +49,7 @@ public class CloneSearchResources extends ApplicationResources {
 	public RawFunctionParser parser;
 	public ApplicationMeta meta;
 
-	public FunctionCloneDataUnit detectFunctionClone(long appId, Function function, double threadshold, int topK,
+	public FunctionCloneDataUnit detectFunctionClone(long appId, Function function, double threshold, int topK,
 			boolean avoidSameBinary, boolean generateCloneGraph) throws Exception {
 
 		long start = System.currentTimeMillis();
@@ -57,7 +57,7 @@ public class CloneSearchResources extends ApplicationResources {
 
 		ArrayList<FunctionCloneDetectionResultForWeb> results = new ArrayList<>();
 
-		FunctionCloneDetectionResultForWeb res = detector.detectClones(appId, function, threadshold, topK,
+		FunctionCloneDetectionResultForWeb res = detector.detectClones(appId, function, threshold, topK,
 				avoidSameBinary);
 		if (res != null)
 			results.add(res);

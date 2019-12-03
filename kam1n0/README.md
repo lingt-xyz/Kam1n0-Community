@@ -4,3 +4,4 @@
 - Update `ca/mcgill/sis/dmas/kam1n0/utils/executor/SparkInstance.java` for `Hadoop/bin/winutils.exe`, see line 205
 - Add `kam1n0-rep\src\main\java\ca\concordia\Printer.java` to output log.
 - Update `optm_parallelism` to `1` in `ca/mcgill/sis/dmas/kam1n0/problem/clone/detector/rep/Asm2VecCloneDetectorIntegration.java`, see line 181
+- Update `inline`

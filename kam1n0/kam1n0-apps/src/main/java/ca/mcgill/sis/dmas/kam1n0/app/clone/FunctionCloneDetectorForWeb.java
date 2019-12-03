@@ -48,8 +48,19 @@ public class FunctionCloneDetectorForWeb {
 		this.detector = detector;
 	}
 
+	/**
+	 *
+	 * @param rid Application Id
+	 * @param binary
+	 * @param threshold Similarity score threshold
+	 * @param topK
+	 * @param avoidSameBinary
+	 * @param progress
+	 * @return
+	 * @throws Exception
+	 */
 	public ArrayList<FunctionCloneDetectionResultForWeb> detectClones(long rid, BinarySurrogate binary,
-			double threashold, int topK, boolean avoidSameBinary, LocalJobProgress progress) throws Exception {
+			double threshold, int topK, boolean avoidSameBinary, LocalJobProgress progress) throws Exception {
 
 		StageInfo stage = progress.nextStage(FunctionCloneDetectorForWeb.class,
 				"Detecting clones [" + binary.functions.size() + " funcs]");
@@ -77,7 +88,9 @@ public class FunctionCloneDetectorForWeb {
 //						} catch (Exception e1) {
 //							logger.warn("Failed to check spark status.", e1);
 //						}
-
+						/**
+						 * Visualization purpose
+						 */
 						counter.inc();
 						stage.progress = counter.getVal() * 1.0 / funcs.size();
 						logger.info("{} queued {} bks named {}", StringResources.FORMAT_AR4D.format(stage.progress),
@@ -90,7 +103,7 @@ public class FunctionCloneDetectorForWeb {
 						}
 
 						try {
-							return this.detectClones(rid, func, threashold, topK, avoidSameBinary);
+							return this.detectClones(rid, func, threshold, topK, avoidSameBinary);
 						} catch (Exception e) {
 							logger.error("Failed to detect clone for " + func.functionName, e);
 							return null;
@@ -166,11 +179,11 @@ public class FunctionCloneDetectorForWeb {
 		ca.concordia.Printer.PrintStatisticsResults("_statistical", results);
 	}
 
-	public FunctionCloneDetectionResultForWeb detectClones(long rid, Function function, double threadshold, int topK,
+	public FunctionCloneDetectionResultForWeb detectClones(long rid, Function function, double threshold, int topK,
 			boolean avoidSameBinary) throws Exception {
 		FunctionCloneDetectionResultForWeb reslt = new FunctionCloneDetectionResultForWeb();
-		detector.detectClonesForFunc(rid, function, threadshold, topK, avoidSameBinary).stream()
-				.map(entry -> new FunctionCloneEntryForWeb(entry)).filter(entry -> entry.similarity >= threadshold)
+		detector.detectClonesForFunc(rid, function, threshold, topK, avoidSameBinary).stream()
+				.map(entry -> new FunctionCloneEntryForWeb(entry)).filter(entry -> entry.similarity >= threshold)
 				.forEach(reslt.clones::add);
 		reslt.function = new FunctionDataUnit(function);
 		return reslt;

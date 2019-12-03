@@ -195,6 +195,9 @@ public class MathUtilities {
 
 	public static int[] createPTbl(List<NodeWord> mp, int size, double power) {
 		int[] tbl = new int[size];
+		/**
+		 * Noise Contrastive Estimation. See http://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf
+		 */
 		double train_word_pows = mp.stream().mapToDouble(w -> pow(w.freq, power)).sum();
 		int ind = 0;
 		double cp = pow(mp.get(ind).freq, power) / train_word_pows;
