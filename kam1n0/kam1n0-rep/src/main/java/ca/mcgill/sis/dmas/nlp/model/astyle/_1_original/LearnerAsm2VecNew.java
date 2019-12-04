@@ -279,7 +279,7 @@ public class LearnerAsm2VecNew implements Serializable {
 
 	/**
 	 *
-	 * @param cont ground truth
+	 * @param cont ground truth: target word and its context
 	 * @param rl user-defined Random
 	 * @param docNode function node: contains function id and its frequency of 1
 	 * @param bfIn array of zeros
@@ -332,9 +332,15 @@ public class LearnerAsm2VecNew implements Serializable {
 			double[] out;
 			// NodeWord target;
 			if (i == 0) {
+				/**
+				 * If it is itself, it's true
+				 */
 				label = 1;
 				out = tar.neuOut;
 			} else {
+				/**
+				 * else, it's false
+				 */
 				label = 0;
 				int tarInd = (int) Long.remainderUnsigned(rl.nextR() >>> 16, pTable.length);
 				NodeWord rtar = vocabL.get(pTable[tarInd]);
