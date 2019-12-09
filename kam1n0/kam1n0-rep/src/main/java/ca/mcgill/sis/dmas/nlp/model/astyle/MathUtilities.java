@@ -193,6 +193,17 @@ public class MathUtilities {
 		return sum;
 	}
 
+	/**
+	 * Generate uni-gram distribution for negative samples
+	 *
+	 * https://github.com/tmikolov/word2vec/blob/20c129af10659f7c50e86e3be406df663beff438/word2vec.c#L52
+	 * http://mccormickml.com/2017/01/11/word2vec-tutorial-part-2-negative-sampling/
+	 *
+	 * @param mp
+	 * @param size
+	 * @param power
+	 * @return
+	 */
 	public static int[] createPTbl(List<NodeWord> mp, int size, double power) {
 		int[] tbl = new int[size];
 		/**

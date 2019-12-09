@@ -120,6 +120,10 @@ public class LearnerAsm2VecNew implements Serializable {
 		if (param.optm_subsampling > 0) {
 			/**
 			 * How many words to sample
+			 * Formula came from Word2Vec C code implementation
+			 *
+			 * https://github.com/tmikolov/word2vec/blob/20c129af10659f7c50e86e3be406df663beff438/word2vec.c#L409
+			 * http://mccormickml.com/2017/01/11/word2vec-tutorial-part-2-negative-sampling/
 			 */
 			double fcount = param.optm_subsampling * tknTotal;
 			vocabL.stream().parallel().forEach(w -> w.samProb = (sqrt(w.freq / fcount) + 1) * fcount / w.freq);
