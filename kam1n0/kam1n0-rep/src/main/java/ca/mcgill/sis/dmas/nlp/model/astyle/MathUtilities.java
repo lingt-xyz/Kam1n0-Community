@@ -198,14 +198,20 @@ public class MathUtilities {
 		/**
 		 * Noise Contrastive Estimation. See http://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf
 		 */
-		double train_word_pows = mp.stream().mapToDouble(w -> pow(w.freq, power)).sum();
+		double train_word_powers = mp.stream().mapToDouble(w -> pow(w.freq, power)).sum();
 		int ind = 0;
-		double cp = pow(mp.get(ind).freq, power) / train_word_pows;
+		/**
+		 * Weight of the first word
+		 */
+		double cp = pow(mp.get(ind).freq, power) / train_word_powers;
+		/**
+		 * size is the size of the table
+		 */
 		for (int a = 0; a < size; ++a) {
 			tbl[a] = ind;
 			if (a * 1.0 / size > cp && ind < mp.size() - 1) {
 				ind++;
-				cp += pow(mp.get(ind).freq, power) / train_word_pows;
+				cp += pow(mp.get(ind).freq, power) / train_word_powers;
 			} else if (ind == mp.size() - 1) {
 				Arrays.fill(tbl, a, size, ind);
 				break;
