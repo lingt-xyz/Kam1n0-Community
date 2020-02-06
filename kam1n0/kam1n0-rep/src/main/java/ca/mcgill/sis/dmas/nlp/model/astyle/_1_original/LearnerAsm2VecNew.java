@@ -284,7 +284,7 @@ public class LearnerAsm2VecNew implements Serializable {
 	/**
 	 *
 	 * @param cont ground truth: target word and its context
-	 * @param rl user-defined Random
+	 * @param rl user-defined Random method
 	 * @param docNode function node: contains function id and its frequency of 1
 	 * @param bfIn array of zeros
 	 * @param neul1e array of zeros

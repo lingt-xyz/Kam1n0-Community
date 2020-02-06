@@ -48,6 +48,12 @@ public class MathUtilities {
 	public static int MAX_EXP = 6;
 	public static double[] expTable = null;
 
+	/**
+	 * Sigmoid function
+	 *
+	 * S(x) = 1 / (1+e^(-x))
+	 * 		= e^x / (e^x + 1)
+	 */
 	public static void createExpTable() {
 		expTable = new double[EXP_TABLE_SIZE];
 		for (int i = 0; i < EXP_TABLE_SIZE; i++) {
