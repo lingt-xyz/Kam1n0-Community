@@ -137,16 +137,16 @@ public class FunctionCloneDetectorForWeb {
 
 		AtomicInteger noneMatch = new AtomicInteger();
 		List<String> noneMatch_results = new ArrayList<>();
-		noneMatch_results.add("----------------------------------------------------------------none match------------------------------------------------------------------");
+		noneMatch_results.add("----------------------------------------------------------------did not find a match------------------------------------------------------------------");
 		AtomicInteger matched = new AtomicInteger();
 		List<String> matched_results = new ArrayList<>();
-		matched_results.add("----------------------------------------------------------------matched------------------------------------------------------------------");
+		matched_results.add("----------------------------------------------------------------matched expected------------------------------------------------------------------");
 		AtomicInteger matched_more_than_05 = new AtomicInteger();
 		List<String> matched_more_than_05__results = new ArrayList<>();
 		matched_more_than_05__results.add("----------------------------------------------------------------number of blocks >= 1.5------------------------------------------------------------------");
 		AtomicInteger notMatched = new AtomicInteger();
 		List<String> not_matched_results = new ArrayList<>();
-		not_matched_results.add("----------------------------------------------------------------not matched------------------------------------------------------------------");
+		not_matched_results.add("----------------------------------------------------------------matched unexpected------------------------------------------------------------------");
 		fullResults.stream().forEach(r -> {
 			String functionName = r.function.functionName;
 			if(r.clones.isEmpty()){
@@ -168,10 +168,10 @@ public class FunctionCloneDetectorForWeb {
 			}
 
 		});
-		results.add("noneMatch: " + noneMatch);
-		results.add("matched: " + matched);
+		results.add("did not find a match: " + noneMatch);
+		results.add("matched expected: " + matched);
 		results.add("matched_more_than_05: " + matched_more_than_05);
-		results.add("notMatched: " + notMatched);
+		results.add("matched unexpected: " + notMatched);
 		results.addAll(noneMatch_results);
 		results.addAll(matched_results);
 		results.addAll(matched_more_than_05__results);

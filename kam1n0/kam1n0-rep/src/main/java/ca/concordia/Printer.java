@@ -4,6 +4,7 @@ import ca.mcgill.sis.dmas.kam1n0.framework.storage.Function;
 import ca.mcgill.sis.dmas.nlp.model.astyle._1_original.FuncTokenized;
 import scala.util.parsing.combinator.testing.Str;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Printer {
-    private final static String Root = "D:/asm2vec/log/";
+    private final static String Root = System.getProperty("kam1n0.data.evaluation");
 
     private final static List<String> functionNames = Arrays.asList(
             "BN_options",
@@ -83,6 +84,9 @@ public class Printer {
     }
 
     private static void Print(String functionName, List<String> input, String type) {
+        if (!new File(Root).exists())
+            new File(Root).mkdirs();
+
         if(functionName == null){
             return;
         }

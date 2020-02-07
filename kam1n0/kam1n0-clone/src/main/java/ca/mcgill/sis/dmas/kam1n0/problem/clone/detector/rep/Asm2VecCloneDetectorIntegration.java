@@ -186,8 +186,11 @@ public class Asm2VecCloneDetectorIntegration extends FunctionCloneDetector imple
 		/**
 		 * Inline or not inline
 		 */
+
+		String stringInline = System.getProperty("kam1n0.inline", "-1");
+		double inline = Double.parseDouble(stringInline);
 		//Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, -1);
-		Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, 0.6);
+		Iterable<FuncTokenized> funcList = FuncTokenized.convert(binaries, inline);
 
 		asm2vec.train(funcList);
 
