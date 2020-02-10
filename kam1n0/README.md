@@ -30,13 +30,19 @@
 - Setup Java as Oracle Java 8
 - Click `build project`
 
+
 ### Build project
 
 - `cd $PROJECT_GIT_ROOT/kam1n0`
 - `mvn -DskipTests clean package`
 - `mvn -DskipTests package`
 
-### Run
+#### Run
 
 - `cd build-bins/`
 - `java -jar kam1n0-server-workbench.jar`
+
+### Debug project
+
+- Create a SpringBoot application, it should automatically detect the Main class `ca.mcgill.sis.dmas.kam1n0.Application`
+- Click `run` or `debug` start the application.
