@@ -62,8 +62,7 @@ public class FunctionCloneDetectorForWeb {
 	public ArrayList<FunctionCloneDetectionResultForWeb> detectClones(long rid, BinarySurrogate binary,
 			double threshold, int topK, boolean avoidSameBinary, LocalJobProgress progress) throws Exception {
 
-		StageInfo stage = progress.nextStage(FunctionCloneDetectorForWeb.class,
-				"Detecting clones [" + binary.functions.size() + " funcs]");
+		StageInfo stage = progress.nextStage(FunctionCloneDetectorForWeb.class, "Detecting clones [" + binary.functions.size() + " funcs]");
 
 		List<Function> funcs = binary.toFunctions();
 		ArrayList<FunctionCloneDetectionResultForWeb> fullResults = new ArrayList<>();
@@ -132,6 +131,14 @@ public class FunctionCloneDetectorForWeb {
 		return fullResults;
 	}
 
+	// precision and recall
+	// https://en.wikipedia.org/wiki/Precision_and_recall
+	// precision = true positive / (true positives + false positives)
+	// precision is the fraction of retrieved documents that are relevant to the query
+	// For example, for a text search on a set of documents, precision is the number of correct results divided by the number of all returned results.
+	// recall = true positive / (true positives + false negatives)
+	// recall is the fraction of the relevant documents that are successfully retrieved
+	// For example, for a text search on a set of documents, recall is the number of correct results divided by the number of results that should have been returned.
 	private void printResult(ArrayList<FunctionCloneDetectionResultForWeb> fullResults){
 		List<String> results = new ArrayList<>();
 
